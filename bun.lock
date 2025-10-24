@@ -2,7 +2,7 @@
   "lockfileVersion": 1,
   "workspaces": {
     "": {
-      "name": "pure",
+      "name": "pulse",
       "devDependencies": {
         "@antfu/eslint-config": "^6.0.0",
         "eslint": "^9.38.0",
