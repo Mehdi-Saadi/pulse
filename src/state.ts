@@ -1,9 +1,11 @@
+import type { IDisposable } from './disposable'
+
 type UnlistenFn = () => void
 
 export class EventBus<Events extends Record<string, any[]>> {
   private _events = new Map<keyof Events, Set<(...args: any[]) => void>>()
 
-  on<E extends keyof Events>(event: E, listener: (...args: Events[E]) => void): UnlistenFn {
+  on<E extends keyof Events>(event: E, listener: (...args: Events[E]) => void): IDisposable {
     let listeners = this._events.get(event)
 
     if (!listeners) {
@@ -13,9 +15,7 @@ export class EventBus<Events extends Record<string, any[]>> {
 
     listeners.add(listener)
 
-    return () => {
-      listeners.delete(listener)
-    }
+    return { dispose: () => listeners.delete(listener) }
   }
 
   emit<E extends keyof Events>(event: E, ...args: Events[E]) {
