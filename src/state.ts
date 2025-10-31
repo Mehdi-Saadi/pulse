@@ -2,7 +2,7 @@ import type { IDisposable } from './disposable'
 
 type UnlistenFn = () => void
 
-export class EventBus<Events extends Record<string, any[]>> {
+export class EventBus<Events extends Record<string, any[]>> implements IDisposable {
   private _events = new Map<keyof Events, Set<(...args: any[]) => void>>()
 
   on<E extends keyof Events>(event: E, listener: (...args: Events[E]) => void): IDisposable {
@@ -32,6 +32,13 @@ export class EventBus<Events extends Record<string, any[]>> {
   emit<E extends keyof Events>(event: E, ...args: Events[E]) {
     const listeners = this._events.get(event)
     listeners?.forEach(listener => listener(...args))
+  }
+
+  dispose(event?: keyof Events) {
+    if (event)
+      this._events.delete(event)
+    else
+      this._events.clear()
   }
 }
 
