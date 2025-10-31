@@ -1,12 +1,9 @@
 type UnlistenFn = () => void
 
-type EventBusListenerPayload = Record<string, unknown>
-type EventBusListener<P extends EventBusListenerPayload> = (payload?: P) => void
+export class EventBus<Events extends Record<string, any[]>> {
+  private _events = new Map<keyof Events, Set<(...args: any[]) => void>>()
 
-export class EventBus<E, P extends EventBusListenerPayload> {
-  private _events = new Map<E, Set<EventBusListener<P>>>()
-
-  on(event: E, listener: EventBusListener<P>): UnlistenFn {
+  on<E extends keyof Events>(event: E, listener: (...args: Events[E]) => void): UnlistenFn {
     let listeners = this._events.get(event)
 
     if (!listeners) {
@@ -21,9 +18,9 @@ export class EventBus<E, P extends EventBusListenerPayload> {
     }
   }
 
-  emit(event: E, payload?: P) {
+  emit<E extends keyof Events>(event: E, ...args: Events[E]) {
     const listeners = this._events.get(event)
-    listeners?.forEach(listener => listener(payload))
+    listeners?.forEach(listener => listener(...args))
   }
 }
 
