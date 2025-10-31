@@ -18,6 +18,17 @@ export class EventBus<Events extends Record<string, any[]>> {
     return { dispose: () => listeners.delete(listener) }
   }
 
+  once<E extends keyof Events>(event: E, listener: (...args: Events[E]) => void): IDisposable {
+    const dispose = this.on(event, wrapper).dispose
+
+    function wrapper(...args: Events[E]) {
+      listener(...args)
+      dispose()
+    }
+
+    return { dispose }
+  }
+
   emit<E extends keyof Events>(event: E, ...args: Events[E]) {
     const listeners = this._events.get(event)
     listeners?.forEach(listener => listener(...args))
