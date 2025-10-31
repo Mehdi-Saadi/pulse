@@ -1,11 +1,14 @@
-import type { IDisposable } from './disposable'
+import type { DisposableCollection, IDisposable } from './disposable'
 
 type UnlistenFn = () => void
 
 export class EventBus<Events extends Record<string, any[]>> implements IDisposable {
   private _events = new Map<keyof Events, Set<(...args: any[]) => void>>()
 
-  on<E extends keyof Events>(event: E, listener: (...args: Events[E]) => void): IDisposable {
+  on<E extends keyof Events>(
+    event: E,
+    listener: (...args: Events[E]) => void,
+  ): IDisposable {
     let listeners = this._events.get(event)
 
     if (!listeners) {
@@ -18,7 +21,10 @@ export class EventBus<Events extends Record<string, any[]>> implements IDisposab
     return { dispose: () => listeners.delete(listener) }
   }
 
-  once<E extends keyof Events>(event: E, listener: (...args: Events[E]) => void): IDisposable {
+  once<E extends keyof Events>(
+    event: E,
+    listener: (...args: Events[E]) => void,
+  ): IDisposable {
     const dispose = this.on(event, wrapper).dispose
 
     function wrapper(...args: Events[E]) {
@@ -27,6 +33,18 @@ export class EventBus<Events extends Record<string, any[]>> implements IDisposab
     }
 
     return { dispose }
+  }
+
+  /**
+   * Attaches a listener and automatically registers it
+   * into a {@link DisposableCollection} scope.
+   */
+  scoped<E extends keyof Events>(
+    event: E,
+    listener: (...args: Events[E]) => void,
+    scope: DisposableCollection,
+  ) {
+    scope.add(this.on(event, listener))
   }
 
   emit<E extends keyof Events>(event: E, ...args: Events[E]) {
