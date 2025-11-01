@@ -1,9 +1,10 @@
 import type { DisposableStore, IDisposable } from './lifecycle'
 
-type ListenFn<Arguments extends any[]> = (...args: Arguments) => void
+type ListenFn<Args extends any[]> = (...args: Args) => void
 
 export class EventBus<Events extends Record<string, any[]>> implements IDisposable {
   private readonly _events = new Map<keyof Events, Set<ListenFn<any[]>>>()
+  private readonly _firing = new Set<keyof Events>()
   private _disposed = false
 
   on<E extends keyof Events>(
@@ -53,20 +54,33 @@ export class EventBus<Events extends Record<string, any[]>> implements IDisposab
   emit<E extends keyof Events>(event: E, ...args: Events[E]) {
     this._checkDisposed()
 
+    if (this._firing.has(event)) {
+      console.warn(`Recursive emit detected for event "${String(event)}"`)
+      return
+    }
+
     const listeners = this._events.get(event)
     if (!listeners || listeners.size === 0)
       return
 
+    this._firing.add(event)
+
     // Snapshot listeners to guarantee consistent iteration
     // event if listeners mutate the set
     const snapshot = Array.from(listeners)
-    for (const listener of snapshot) {
-      try {
-        listener(...args)
+
+    try {
+      for (const listener of snapshot) {
+        try {
+          listener(...args)
+        }
+        catch (error) {
+          console.error(error)
+        }
       }
-      catch (error) {
-        console.error(error)
-      }
+    }
+    finally {
+      this._firing.delete(event)
     }
   }
 
