@@ -49,7 +49,14 @@ export class EventBus<Events extends Record<string, any[]>> implements IDisposab
 
   emit<E extends keyof Events>(event: E, ...args: Events[E]) {
     const listeners = this._events.get(event)
-    listeners?.forEach(listener => listener(...args))
+    listeners?.forEach((listener) => {
+      try {
+        listener(...args)
+      }
+      catch (error) {
+        console.error(error)
+      }
+    })
   }
 
   dispose(event?: keyof Events) {
