@@ -18,8 +18,8 @@ export class DisposableStore implements IDisposable {
   dispose() {
     if (this._disposed)
       return
-    this._disposed = true
     this._disposables.forEach(d => d())
     this._disposables.clear()
+    this._disposed = true
   }
 }
