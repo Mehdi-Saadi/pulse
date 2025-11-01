@@ -2,7 +2,7 @@ export interface IDisposable {
   dispose: () => void
 }
 
-export class DisposableCollection implements IDisposable {
+export class DisposableStore implements IDisposable {
   private readonly _disposables: Set<() => void> = new Set()
   private _disposed = false
 

@@ -1,4 +1,4 @@
-import type { DisposableCollection, IDisposable } from './lifecycle'
+import type { DisposableStore, IDisposable } from './lifecycle'
 
 export class EventBus<Events extends Record<string, any[]>> implements IDisposable {
   private _events = new Map<keyof Events, Set<(...args: any[]) => void>>()
@@ -35,12 +35,12 @@ export class EventBus<Events extends Record<string, any[]>> implements IDisposab
 
   /**
    * Attaches a listener and automatically registers it
-   * into a {@link DisposableCollection} scope.
+   * into a {@link DisposableStore} scope.
    */
   scoped<E extends keyof Events>(
     event: E,
     listener: (...args: Events[E]) => void,
-    scope: DisposableCollection,
+    scope: DisposableStore,
   ) {
     scope.add(this.on(event, listener))
   }
