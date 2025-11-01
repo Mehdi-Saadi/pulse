@@ -6,6 +6,11 @@ export class EventBus<Events extends Record<string, any[]>> implements IDisposab
   private readonly _events = new Map<keyof Events, Set<ListenFn<any[]>>>()
   private readonly _firing = new Set<keyof Events>()
   private _disposed = false
+  private _sync: boolean
+
+  constructor(options = { sync: false }) {
+    this._sync = options.sync
+  }
 
   on<E extends keyof Events>(
     event: E,
@@ -63,25 +68,31 @@ export class EventBus<Events extends Record<string, any[]>> implements IDisposab
     if (!listeners || listeners.size === 0)
       return
 
-    this._firing.add(event)
-
     // Snapshot listeners to guarantee consistent iteration
     // event if listeners mutate the set
     const snapshot = Array.from(listeners)
 
-    try {
-      for (const listener of snapshot) {
-        try {
-          listener(...args)
-        }
-        catch (error) {
-          console.error(error)
+    const invoke = () => {
+      this._firing.add(event)
+      try {
+        for (const listener of snapshot) {
+          try {
+            listener(...args)
+          }
+          catch (error) {
+            console.error(error)
+          }
         }
       }
+      finally {
+        this._firing.delete(event)
+      }
     }
-    finally {
-      this._firing.delete(event)
-    }
+
+    if (this._sync)
+      invoke()
+    else
+      queueMicrotask(invoke)
   }
 
   dispose(event?: keyof Events) {
