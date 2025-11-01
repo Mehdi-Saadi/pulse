@@ -3,7 +3,7 @@ export interface IDisposable {
 }
 
 export class DisposableCollection implements IDisposable {
-  private _disposables: (() => void)[] = []
+  private readonly _disposables: Set<() => void> = new Set()
   private _disposed = false
 
   add(d: IDisposable | (() => void)) {
@@ -12,7 +12,7 @@ export class DisposableCollection implements IDisposable {
     if (this._disposed)
       return d()
 
-    this._disposables.push(d)
+    this._disposables.add(d)
   }
 
   dispose() {
@@ -20,6 +20,6 @@ export class DisposableCollection implements IDisposable {
       return
     this._disposed = true
     this._disposables.forEach(d => d())
-    this._disposables = []
+    this._disposables.clear()
   }
 }
