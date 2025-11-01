@@ -4,11 +4,14 @@ type ListenFn<Arguments extends any[]> = (...args: Arguments) => void
 
 export class EventBus<Events extends Record<string, any[]>> implements IDisposable {
   private readonly _events = new Map<keyof Events, Set<ListenFn<any[]>>>()
+  private _disposed = false
 
   on<E extends keyof Events>(
     event: E,
     listener: ListenFn<Events[E]>,
   ): IDisposable {
+    this._checkDisposed()
+
     let listeners = this._events.get(event)
 
     if (!listeners) {
@@ -48,6 +51,8 @@ export class EventBus<Events extends Record<string, any[]>> implements IDisposab
   }
 
   emit<E extends keyof Events>(event: E, ...args: Events[E]) {
+    this._checkDisposed()
+
     const listeners = this._events.get(event)
     if (!listeners || listeners.size === 0)
       return
@@ -66,9 +71,20 @@ export class EventBus<Events extends Record<string, any[]>> implements IDisposab
   }
 
   dispose(event?: keyof Events) {
-    if (event)
+    this._checkDisposed()
+
+    if (event) {
       this._events.delete(event)
-    else
+    }
+    else {
       this._events.clear()
+      this._disposed = true
+    }
+  }
+
+  private _checkDisposed() {
+    if (this._disposed) {
+      throw new Error('EventBus has been disposed')
+    }
   }
 }
