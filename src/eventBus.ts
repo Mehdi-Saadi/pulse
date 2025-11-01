@@ -1,4 +1,4 @@
-import type { DisposableCollection, IDisposable } from './disposable'
+import type { DisposableCollection, IDisposable } from './lifecycle'
 
 export class EventBus<Events extends Record<string, any[]>> implements IDisposable {
   private _events = new Map<keyof Events, Set<(...args: any[]) => void>>()
