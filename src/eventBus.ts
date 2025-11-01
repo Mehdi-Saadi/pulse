@@ -1,11 +1,13 @@
 import type { DisposableStore, IDisposable } from './lifecycle'
 
+type ListenFn<Arguments extends any[]> = (...args: Arguments) => void
+
 export class EventBus<Events extends Record<string, any[]>> implements IDisposable {
-  private _events = new Map<keyof Events, Set<(...args: any[]) => void>>()
+  private readonly _events = new Map<keyof Events, Set<ListenFn<any[]>>>()
 
   on<E extends keyof Events>(
     event: E,
-    listener: (...args: Events[E]) => void,
+    listener: ListenFn<Events[E]>,
   ): IDisposable {
     let listeners = this._events.get(event)
 
@@ -21,7 +23,7 @@ export class EventBus<Events extends Record<string, any[]>> implements IDisposab
 
   once<E extends keyof Events>(
     event: E,
-    listener: (...args: Events[E]) => void,
+    listener: ListenFn<Events[E]>,
   ): IDisposable {
     const dispose = this.on(event, wrapper).dispose
 
@@ -39,7 +41,7 @@ export class EventBus<Events extends Record<string, any[]>> implements IDisposab
    */
   scoped<E extends keyof Events>(
     event: E,
-    listener: (...args: Events[E]) => void,
+    listener: ListenFn<Events[E]>,
     scope: DisposableStore,
   ) {
     scope.add(this.on(event, listener))
