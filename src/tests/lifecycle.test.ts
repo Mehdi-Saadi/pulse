@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { DisposableStore } from './../lifecycle'
 
-describe('disposable store', () => {
+describe('disposableStore', () => {
   it('should call dispose() on all registered disposables when disposed', () => {
     const dispose1 = vi.fn()
     const dispose2 = vi.fn()
