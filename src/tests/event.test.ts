@@ -161,7 +161,7 @@ describe('eventBus', () => {
     })
     const second = vi.fn()
 
-    const dispose1 = bus.on('foo', first)
+    bus.on('foo', first)
     const dispose2 = bus.on('foo', second)
 
     bus.emit('foo', 1, 'snapshot')
