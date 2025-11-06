@@ -12,18 +12,22 @@ export interface IDisposable {
 }
 
 export class DisposableStore implements IDisposable {
-  private readonly _disposables: Set<() => void> = new Set()
+  private readonly _disposables: Set<IDisposable> = new Set()
   private _disposed = false
 
-  add(d: IDisposable | (() => void)) {
-    d = typeof d === 'function' ? d : d.dispose
+  add<T extends IDisposable>(d: T): T {
+    if ((d as unknown as DisposableStore) === this) {
+      throw new Error('Cannot register a disposable on itself!')
+    }
 
     if (this._disposed) {
       console.warn('Trying to add a disposable to a disposed store. This is probably a bug.')
-      return d()
+      return d
     }
 
     this._disposables.add(d)
+
+    return d
   }
 
   dispose() {
@@ -32,7 +36,7 @@ export class DisposableStore implements IDisposable {
       return
     }
 
-    this._disposables.forEach(d => d())
+    this._disposables.forEach(d => d.dispose())
     this._disposables.clear()
     this._disposed = true
   }
