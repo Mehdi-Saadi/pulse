@@ -22,6 +22,7 @@ export class DisposableStore implements IDisposable {
 
     if (this._disposed) {
       console.warn('Trying to add a disposable to a disposed store. This is probably a bug.')
+      d.dispose()
       return d
     }
 
