@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
+import { DisposableStore } from '../common/lifecycle'
 import { EventBus } from './../event'
-import { DisposableStore } from './../lifecycle'
 
 // Define event map for testing
 // eslint-disable-next-line ts/consistent-type-definitions

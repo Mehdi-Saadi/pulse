@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { DisposableStore } from './../lifecycle'
+import { DisposableStore } from '../../common/lifecycle'
 
 describe('disposableStore', () => {
   it('should call dispose() on all registered disposables when disposed', () => {

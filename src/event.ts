@@ -1,4 +1,4 @@
-import type { DisposableStore, IDisposable } from './lifecycle'
+import type { DisposableStore, IDisposable } from './common/lifecycle'
 
 /**
  * Represents a generic listener function for an event.
