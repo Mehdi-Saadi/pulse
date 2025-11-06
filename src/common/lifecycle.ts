@@ -42,3 +42,26 @@ export class DisposableStore implements IDisposable {
     this._disposed = true
   }
 }
+
+/**
+ * Abstract base class for a {@link IDisposable disposable} object.
+ *
+ * Subclasses can {@linkcode _register} disposables that will be automatically cleaned up when this object is disposed of.
+ */
+export abstract class Disposable implements IDisposable {
+  protected readonly _store = new DisposableStore()
+
+  dispose() {
+    this._store.dispose()
+  }
+
+  /**
+   * Adds `o` to the collection of disposables managed by this object.
+   */
+  protected _register<T extends IDisposable>(o: T): T {
+    if ((o as unknown as Disposable) === this) {
+      throw new Error('Cannot register a disposable on itself!')
+    }
+    return this._store.add(o)
+  }
+}
