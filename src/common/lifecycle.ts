@@ -19,23 +19,22 @@ export function isDisposable<E>(thing: E): thing is E & IDisposable {
 }
 
 class FunctionDisposable implements IDisposable {
-  private _isDisposed: boolean
-  private readonly _fn: () => void
+  private _isDisposed = false
 
-  constructor(fn: () => void) {
-    this._isDisposed = false
-    this._fn = fn
-  }
+  constructor(
+    private readonly _fn: () => void,
+  ) { }
 
   dispose() {
     if (this._isDisposed) {
+      console.warn('Trying to dispose a disposed disposable. This is probably a bug.')
       return
     }
     if (!this._fn) {
       throw new Error(`Unbound disposable context: Need to use an arrow function to preserve the value of this`)
     }
-    this._isDisposed = true
     this._fn()
+    this._isDisposed = true
   }
 }
 
