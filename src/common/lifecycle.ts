@@ -25,7 +25,7 @@ class FunctionDisposable implements IDisposable {
     private readonly _fn: () => void,
   ) { }
 
-  dispose() {
+  dispose(): void {
     if (this._isDisposed) {
       console.warn('Trying to dispose a disposed disposable. This is probably a bug.')
       return
@@ -67,7 +67,7 @@ export class DisposableStore implements IDisposable {
     return d
   }
 
-  dispose() {
+  dispose(): void {
     if (this._disposed) {
       console.warn('Trying to dispose a disposed store. This is probably a bug.')
       return
@@ -87,7 +87,7 @@ export class DisposableStore implements IDisposable {
 export abstract class Disposable implements IDisposable {
   protected readonly _store = new DisposableStore()
 
-  dispose() {
+  dispose(): void {
     this._store.dispose()
   }
 
