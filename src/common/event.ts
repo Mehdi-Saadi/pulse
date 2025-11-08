@@ -1,4 +1,5 @@
 import type { DisposableStore, IDisposable } from './lifecycle'
+import { toDisposable } from './lifecycle'
 
 /**
  * Represents a generic listener function for an event.
@@ -80,7 +81,7 @@ export class EventBus<Events extends Record<string, any[]>> implements IDisposab
 
     listeners.add(listener)
 
-    return { dispose: () => listeners.delete(listener) }
+    return toDisposable(() => listeners.delete(listener))
   }
 
   /**
@@ -95,14 +96,14 @@ export class EventBus<Events extends Record<string, any[]>> implements IDisposab
     event: E,
     listener: ListenFn<Events[E]>,
   ): IDisposable {
-    const dispose = this.on(event, wrapper).dispose
+    const disposable = this.on(event, wrapper)
 
     function wrapper(...args: Events[E]) {
       listener(...args)
-      dispose()
+      disposable.dispose()
     }
 
-    return { dispose }
+    return disposable
   }
 
   /**
@@ -117,7 +118,7 @@ export class EventBus<Events extends Record<string, any[]>> implements IDisposab
     event: E,
     listener: ListenFn<Events[E]>,
     scope: DisposableStore,
-  ) {
+  ): void {
     scope.add(this.on(event, listener))
   }
 
@@ -132,7 +133,7 @@ export class EventBus<Events extends Record<string, any[]>> implements IDisposab
    * - Listeners are called in insertion order.
    * - Errors thrown by individual listeners are caught and logged, ensuring others still run.
    */
-  emit<E extends keyof Events>(event: E, ...args: Events[E]) {
+  emit<E extends keyof Events>(event: E, ...args: Events[E]): void {
     this._checkDisposed()
 
     if (this._firing.has(event)) {
@@ -177,7 +178,7 @@ export class EventBus<Events extends Record<string, any[]>> implements IDisposab
    * @param event - Optional event key. If provided, only that event’s listeners are removed.
    *                Otherwise, all listeners are cleared and the bus is permanently disposed.
    */
-  dispose(event?: keyof Events) {
+  dispose(event?: keyof Events): void {
     this._checkDisposed()
 
     if (event) {
@@ -193,7 +194,7 @@ export class EventBus<Events extends Record<string, any[]>> implements IDisposab
    * Ensures the event bus has not been disposed before performing operations.
    * Throws an error if already disposed.
    */
-  private _checkDisposed() {
+  private _checkDisposed(): void {
     if (this._disposed) {
       throw new Error('EventBus has been disposed')
     }
