@@ -3,12 +3,11 @@ type StateListener<V> = (value: V) => void
 
 // local state
 export class State<V> {
-  private _value: V
   private _listeners = new Set<StateListener<V>>()
 
-  constructor(initialValue: V) {
-    this._value = initialValue
-  }
+  constructor(
+    private _value: V,
+  ) { }
 
   getValue(): Readonly<V> {
     return this._value
