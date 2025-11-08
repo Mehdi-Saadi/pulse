@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { DisposableStore } from '../../common/lifecycle'
+import { DisposableStore, toDisposable } from '../../common/lifecycle'
 
 describe('disposableStore', () => {
   it('should call dispose() on all registered disposables when disposed', () => {
@@ -29,7 +29,7 @@ describe('disposableStore', () => {
     const fn = vi.fn()
     const store = new DisposableStore()
 
-    store.add(fn)
+    store.add(toDisposable(fn))
     store.dispose()
 
     expect(fn).toHaveBeenCalledTimes(1)
@@ -39,7 +39,7 @@ describe('disposableStore', () => {
     const fn = vi.fn()
     const store = new DisposableStore()
 
-    store.add(fn)
+    store.add(toDisposable(fn))
     store.dispose()
 
     // Clear is internal, but we can check behavior by re-disposing
@@ -51,7 +51,7 @@ describe('disposableStore', () => {
     const fn = vi.fn()
     const store = new DisposableStore()
 
-    store.add(fn)
+    store.add(toDisposable(fn))
     store.dispose()
     store.dispose()
 
@@ -62,7 +62,7 @@ describe('disposableStore', () => {
     const fns = [vi.fn(), vi.fn(), vi.fn()]
     const store = new DisposableStore()
 
-    fns.forEach(fn => store.add(fn))
+    fns.forEach(fn => store.add(toDisposable(fn)))
     store.dispose()
 
     fns.forEach(fn => expect(fn).toHaveBeenCalledTimes(1))
