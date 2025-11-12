@@ -48,7 +48,7 @@ export function toDisposable(fn: () => void): IDisposable {
 }
 
 export class DisposableStore implements IDisposable {
-  private readonly _disposables: Set<IDisposable> = new Set()
+  private readonly _disposables = new Set<IDisposable>()
   private _disposed = false
 
   add<T extends IDisposable>(d: T): T {
